@@ -1,6 +1,6 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "70d8b56c320d65d7fd81afe0d53d419f",
+    "revision": "5e853d90c694cfa5c9d05395d77f0504",
     "url": "/sample-obd-data/index.html"
   },
   {
