@@ -1,0 +1,22 @@
+{
+  "files": {
+    "main.css": "/sample-obd-data/static/css/main.5f361e03.chunk.css",
+    "main.js": "/sample-obd-data/static/js/main.970f9196.chunk.js",
+    "main.js.map": "/sample-obd-data/static/js/main.970f9196.chunk.js.map",
+    "runtime-main.js": "/sample-obd-data/static/js/runtime-main.e04fe882.js",
+    "runtime-main.js.map": "/sample-obd-data/static/js/runtime-main.e04fe882.js.map",
+    "static/js/2.99e6b756.chunk.js": "/sample-obd-data/static/js/2.99e6b756.chunk.js",
+    "static/js/2.99e6b756.chunk.js.map": "/sample-obd-data/static/js/2.99e6b756.chunk.js.map",
+    "index.html": "/sample-obd-data/index.html",
+    "precache-manifest.3e1d700baddbd6ecffc83904c545bff3.js": "/sample-obd-data/precache-manifest.3e1d700baddbd6ecffc83904c545bff3.js",
+    "service-worker.js": "/sample-obd-data/service-worker.js",
+    "static/css/main.5f361e03.chunk.css.map": "/sample-obd-data/static/css/main.5f361e03.chunk.css.map",
+    "static/js/2.99e6b756.chunk.js.LICENSE.txt": "/sample-obd-data/static/js/2.99e6b756.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.e04fe882.js",
+    "static/js/2.99e6b756.chunk.js",
+    "static/css/main.5f361e03.chunk.css",
+    "static/js/main.970f9196.chunk.js"
+  ]
+}
