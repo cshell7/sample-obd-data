@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
+import example from "./example.json";
 
 const ONE_MEGABYTE = 1000000; // Bytes
 
@@ -132,10 +133,21 @@ function App() {
 
   const graphWidth = 800;
   const graphHeight = 400;
-  const numberOfDataPoints = rows?.length;
 
   const [selectedField, setSelectedField] = useState();
 
+  const cachedValuesString = localStorage.getItem("savedOBDSample");
+  const cachedValues = !!cachedValuesString && JSON.parse(cachedValuesString);
+
+  const [useExample, setUseExample] = useState(false);
+  const numberOfDataPoints = useExample
+    ? example.there[0].values.length
+    : rows?.length;
+
+  const mainValue = useExample ? example.there : columns;
+  const secondaryValue = useExample ? example.back : cachedValues;
+
+  console.log(mainValue?.[selectedField]);
   return (
     <div className="App">
       <header className="App-header">
@@ -152,25 +164,48 @@ function App() {
 
         <input type="file" onChange={handleFileUpload} multiple accept=".csv" />
         {haveFilesBeenSampled && (
-          <a
-            href={`data:text/plain;charset=utf-8,${encodeURIComponent(
-              newFile
-            )}`}
-            style={{ color: "white", marginTop: "16px" }}
-            download="sampled-data.csv"
-          >
-            Download sampled data
-          </a>
+          <>
+            <a
+              href={`data:text/plain;charset=utf-8,${encodeURIComponent(
+                columns
+              )}`}
+              style={{ color: "white", marginTop: "16px" }}
+              download="headers.csv"
+            >
+              Download sampled data
+            </a>
+            <button
+              onClick={() => {
+                localStorage.setItem("savedOBDSample", JSON.stringify(columns));
+              }}
+            >
+              Save
+            </button>
+            <button
+              onClick={() => {
+                localStorage.removeItem("savedOBDSample");
+              }}
+            >
+              Clear Saved
+            </button>
+          </>
         )}
+        <button
+          onClick={() => {
+            setUseExample(!useExample);
+          }}
+        >
+          {useExample ? "use uploaded files" : "use example"}
+        </button>
       </header>
-      {columns && (
+      {mainValue && (
         <select
           onChange={({ target }) => setSelectedField(target.value)}
           value={selectedField || ""}
           style={{ margin: "16px auto", display: "block" }}
         >
           <option value=""></option>
-          {Object.entries(columns)
+          {Object.entries(mainValue)
             .filter(([key, { values }]) =>
               values.some((value) => Number.isInteger(parseInt(value)))
             )
@@ -183,9 +218,16 @@ function App() {
       )}
       {!!selectedField && (
         <>
-          <p>max: {columns[selectedField].max}</p>
-          <p>avg: {columns[selectedField].avg}</p>
-          <p>min: {columns[selectedField].min}</p>
+          <p>max: {mainValue[selectedField].max}</p>
+          <p>avg: {mainValue[selectedField].avg}</p>
+          <p>min: {mainValue[selectedField].min}</p>
+        </>
+      )}
+      {!!selectedField && secondaryValue && (
+        <>
+          <p>cached max: {secondaryValue[selectedField].max}</p>
+          <p>cached avg: {secondaryValue[selectedField].avg}</p>
+          <p>cached min: {secondaryValue[selectedField].min}</p>
         </>
       )}
       <svg
@@ -203,13 +245,11 @@ function App() {
           <>
             <polyline
               fill="none"
-              stroke="#0074d9"
-              stroke-width="1"
-              points={columns[selectedField].values
+              stroke="blue"
+              stroke-width="2"
+              points={mainValue[selectedField].values
                 .filter((value) => Number.isInteger(parseInt(value)))
                 .map((value, index) => {
-                  console.log((graphWidth / numberOfDataPoints) * index);
-                  console.log({ numberOfDataPoints, index });
                   return `${Math.floor(
                     (graphWidth / numberOfDataPoints) * index
                   )},${
@@ -217,7 +257,7 @@ function App() {
                       ? graphHeight -
                         Math.floor(
                           (graphHeight / 100) *
-                            ((value / columns[selectedField].max) * 100)
+                            ((value / mainValue[selectedField].max) * 100)
                         )
                       : 0
                   }`;
@@ -226,24 +266,74 @@ function App() {
             />
             <polyline
               fill="none"
-              stroke="blue"
-              stroke-width="1"
+              stroke="lightblue"
+              stroke-width="2"
               points={`0,${
                 graphHeight -
                 Math.floor(
                   (graphHeight / 100) *
-                    ((columns[selectedField].avg / columns[selectedField].max) *
+                    ((mainValue[selectedField].avg /
+                      mainValue[selectedField].max) *
                       100)
                 )
               } ${graphWidth},${
                 graphHeight -
                 Math.floor(
                   (graphHeight / 100) *
-                    ((columns[selectedField].avg / columns[selectedField].max) *
+                    ((mainValue[selectedField].avg /
+                      mainValue[selectedField].max) *
                       100)
                 )
               }`}
             />
+            {(!!cachedValues || useExample) && (
+              <>
+                <polyline
+                  fill="none"
+                  stroke="red"
+                  stroke-width="2"
+                  points={secondaryValue[selectedField].values
+                    .filter((value) => Number.isInteger(parseInt(value)))
+                    .map((value, index) => {
+                      return `${Math.floor(
+                        (graphWidth / numberOfDataPoints) * index
+                      )},${
+                        Number.isInteger(parseInt(value))
+                          ? graphHeight -
+                            Math.floor(
+                              (graphHeight / 100) *
+                                ((value / secondaryValue[selectedField].max) *
+                                  100)
+                            )
+                          : 0
+                      }`;
+                    })
+                    .join(" ")}
+                />
+                <polyline
+                  fill="none"
+                  stroke="pink"
+                  stroke-width="2"
+                  points={`0,${
+                    graphHeight -
+                    Math.floor(
+                      (graphHeight / 100) *
+                        ((secondaryValue[selectedField].avg /
+                          secondaryValue[selectedField].max) *
+                          100)
+                    )
+                  } ${graphWidth},${
+                    graphHeight -
+                    Math.floor(
+                      (graphHeight / 100) *
+                        ((secondaryValue[selectedField].avg /
+                          secondaryValue[selectedField].max) *
+                          100)
+                    )
+                  }`}
+                />
+              </>
+            )}
           </>
         )}
       </svg>
